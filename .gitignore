@@ -1,0 +1,7 @@
+# Node modules
+/public/node_modules
+/server/node_modules
+
+# Environment variables
+/public/.env
+/server/.env
