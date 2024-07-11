@@ -28,27 +28,29 @@ function Register() {
     if (localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)) {
       navigate("/");
     }
-  }, []);
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (handleValidation()) {
-      // console.log("in validation", registerRoute);
       const { password, username, email } = values;
-      const { data } = await axios.post(registerRoute, {
-        username,
-        email,
-        password,
-      });
-      if (data.status === false) {
-        toast.error(data.msg, toastOptions);
-      }
-      if (data.status === true) {
-        localStorage.setItem(
-          process.env.REACT_APP_LOCALHOST_KEY,
-          JSON.stringify(data.user)
-        );
-        navigate("/");
+      try {
+        const { data } = await axios.post(registerRoute, {
+          username,
+          email,
+          password,
+        });
+        if (data.status === false) {
+          toast.error(data.msg, toastOptions);
+        } else if (data.status === true) {
+          localStorage.setItem(
+            process.env.REACT_APP_LOCALHOST_KEY,
+            JSON.stringify(data.user)
+          );
+          navigate("/");
+        }
+      } catch (error) {
+        toast.error("Registration failed. Please try again.", toastOptions);
       }
     }
   };
@@ -56,16 +58,16 @@ function Register() {
   const handleValidation = () => {
     const { password, confirmPassword, username, email } = values;
     if (password !== confirmPassword) {
-      toast.error("password and confirm password should be same", toastOptions);
+      toast.error("Password and confirm password should be the same.", toastOptions);
       return false;
     } else if (password.length <= 8) {
-      toast.error("Password should be greater than 8 characters", toastOptions);
+      toast.error("Password should be greater than 8 characters.", toastOptions);
       return false;
     } else if (username.length <= 3) {
-      toast.error("Username should be greater than 3 letters", toastOptions);
+      toast.error("Username should be greater than 3 letters.", toastOptions);
       return false;
     } else if (email === "") {
-      toast.error("email should not be empty", toastOptions);
+      toast.error("Email should not be empty.", toastOptions);
       return false;
     }
     return true;
@@ -74,10 +76,11 @@ function Register() {
   const handleChange = (event) => {
     setValues({ ...values, [event.target.name]: event.target.value });
   };
+
   return (
     <>
       <FormContainer>
-        <form action ="" onSubmit={(event) => handleSubmit(event)}>
+        <form action="" onSubmit={(event) => handleSubmit(event)}>
           <div className="brand">
             <img src={Logo} alt="LOGO" />
             <h1>ChatOre</h1>
@@ -107,7 +110,9 @@ function Register() {
             onChange={(e) => handleChange(e)}
           />
           <button type="submit">Register</button>
-          <Link to="/login">Already have an account?</Link>
+          <span>
+            Already have an account? <Link to="/login">Login</Link>
+          </span>
         </form>
       </FormContainer>
       <ToastContainer />
@@ -139,6 +144,7 @@ const FormContainer = styled.div`
       text-transform: uppercase;
     }
   }
+
   form {
     display: flex;
     flex-direction: column;
@@ -146,6 +152,7 @@ const FormContainer = styled.div`
     background-color: #00000075;
     border-radius: 2rem;
     padding: 3rem 5rem;
+
     input {
       color: white;
       background-color: transparent;
@@ -154,8 +161,13 @@ const FormContainer = styled.div`
       border-radius: 0.4rem;
       width: 100%;
       font-size: 1rem;
+      &:focus {
+        border: 0.1rem solid #997af0;
+        outline: none;
+      }
     }
   }
+
   button {
     color: white;
     background-color: #4e0eff;
@@ -166,21 +178,22 @@ const FormContainer = styled.div`
     font-weight: bold;
     font-size: 1rem;
     text-transform: uppercase;
+    &:hover {
+      background-color: #3e0edf;
+    }
   }
-  button:hover {
-    // color:black;
-    background-color: #4e0eff;
-    transition: 0.4s ease-in-out;
-  }
-  a {
-    color: blue;
-    text-decoration: none;
+
+  span {
+    color: white;
     text-transform: uppercase;
-    text-align: center;
-  }
-  a:hover {
-    color: #8f9de9;
-    transition: 0.2s ease-in-out;
+    a {
+      color: #4e0eff;
+      text-decoration: none;
+      font-weight: bold;
+      &:hover {
+        color: #997af0;
+      }
+    }
   }
 `;
 
