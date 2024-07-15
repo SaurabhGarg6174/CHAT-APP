@@ -25,6 +25,8 @@ export default function Chat() {
     fetchCurrentUser();
   }, [navigate]);
 
+  
+
   useEffect(() => {
     async function fetchContacts() {
       if (currentUser) {
@@ -56,7 +58,7 @@ export default function Chat() {
         {currentChat === undefined ? (
           <Welcome currentUser={currentUser} />
         ) : (
-          <ChatContainer currentChat={currentChat} />
+          <ChatContainer currentChat={currentChat} currentUser = {currentUser} />
         )}
       </div>
     </Container>

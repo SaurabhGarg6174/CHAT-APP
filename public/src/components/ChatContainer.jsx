@@ -1,8 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Logout from "./Logout";
+import ChatInput from "./ChatInput";
+import axios from "axios";
+import { getAllMessagesRoute, sendMessageRoute } from "../utils/APIRoutes";
 
-export default function ChatContainer({ currentChat }) {
+export default function ChatContainer({ currentChat, currentUser }) {
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.post(getAllMessagesRoute, {
+          from: currentUser._id,
+          to: currentChat._id,
+        });
+        setMessages(response.data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+    fetchMessages();
+  }, [currentChat, currentUser]);
+
+  const handleSendMsg = async (msg) => {
+    try {
+      await axios.post(sendMessageRoute, {
+        from: currentUser._id,
+        to: currentChat._id,
+        message: msg,
+      });
+    } catch (error) {
+      console.log("Error sending message", error);
+    }
+  };
+
   return (
     <Container>
       <div className="chat-header">
@@ -19,14 +51,26 @@ export default function ChatContainer({ currentChat }) {
         </div>
         <Logout />
       </div>
-      <div className="chat-messages"></div>
-      <div className="chat-input"></div>
+      <div className="chat-messages">
+        {messages.map((message, index) => {
+          return (
+            <div key={index}>
+              <div className={`message ${message.fromSelf ? "sent" : "recieved"}`}>
+                <div className="content">
+                  <p>{message.message}</p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      <ChatInput handleSendMsg={handleSendMsg} />
     </Container>
   );
 }
 
 const Container = styled.div`
-  padding-top: 1rem;;
+  padding-top: 1rem;
   display: grid;
   grid-template-rows: 10% 80% 10%;
   gap: 0.1rem;
@@ -55,110 +99,37 @@ const Container = styled.div`
       }
     }
   }
+  .chat-messages{
+    z-index: 2000;
+    padding: 1rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: auto;
+    .message{
+      display: flex;
+      align-items: center;
+      .content{
+        max-width:40%;
+        overflow-wrap: break-word;
+        padding: 1rem;
+        font-size: 1.1rem;
+        border-radius: 1rem;
+        color: #d1d1d1;
+      }
+    }
+    .sent{
+      justify-content: flex-end;
+      .content{
+        background-color: #4f04ff21;
+      }
+    }
+    .recieved{
+      justify-content: flex-start;
+      .content{
+        background-color: #9900ff20;
+      }
+    }
+  }
 `;
 
-// import React, { useState } from 'react';
-// import styled from 'styled-components';
-
-// export default function ChatContainer({ currentUser }) {
-//   const [messages, setMessages] = useState([
-//     { sender: 'other', content: 'Hello!' },
-//     { sender: 'currentUser', content: 'Hi there!' },
-//     { sender: 'other', content: 'How are you?' }
-//   ]);
-//   const [newMessage, setNewMessage] = useState('');
-
-//   const handleSendMessage = () => {
-//     if (newMessage.trim()) {
-//       setMessages([...messages, { sender: 'currentUser', content: newMessage }]);
-//       setNewMessage('');
-//     }
-//   };
-
-//   return (
-//     <Container>
-//       <MessagesContainer>
-//         {messages.map((message, index) => (
-//           <Message key={index} isCurrentUser={message.sender === 'currentUser'}>
-//             <Content isCurrentUser={message.sender === 'currentUser'}>{message.content}</Content>
-//           </Message>
-//         ))}
-//       </MessagesContainer>
-//       <MessageInputContainer>
-//         <Input
-//           type="text"
-//           value={newMessage}
-//           onChange={(e) => setNewMessage(e.target.value)}
-//           placeholder="Type a message..."
-//         />
-//         <Button onClick={handleSendMessage}>Send</Button>
-//       </MessageInputContainer>
-//     </Container>
-//   );
-// }
-
-// const Container = styled.div`
-//   display: flex;
-//   flex-direction: column;
-//   height: 100%;
-//   width: 100%;
-//   background-color: #121212;
-//   color: #ffffff;
-// `;
-
-// const MessagesContainer = styled.div`
-//   flex: 1;
-//   padding: 1rem;
-//   overflow-y: auto;
-// `;
-
-// const Message = styled.div`
-//   display: flex;
-//   justify-content: ${(props) => (props.isCurrentUser ? 'flex-end' : 'flex-start')};
-//   margin-bottom: 1rem;
-// `;
-
-// const Content = styled.div`
-//   background-color: ${(props) => (props.isCurrentUser ? '#4e0eff' : '#333333')};
-//   color: ${(props) => (props.isCurrentUser ? '#ffffff' : '#ffffff')};
-//   padding: 0.75rem;
-//   border-radius: 1rem;
-//   max-width: 60%;
-//   word-wrap: break-word;
-// `;
-
-// const MessageInputContainer = styled.div`
-//   display: flex;
-//   padding: 0.5rem;
-//   background-color: #1e1e1e;
-//   border-top: 1px solid #333333;
-// `;
-
-// const Input = styled.input`
-//   flex: 1;
-//   padding: 0.75rem;
-//   border: none;
-//   border-radius: 0.5rem;
-//   margin-right: 0.5rem;
-//   font-size: 1rem;
-//   background-color: #333333;
-//   color: #ffffff;
-
-//   &::placeholder {
-//     color: #aaaaaa;
-//   }
-// `;
-
-// const Button = styled.button`
-//   padding: 0.75rem 1rem;
-//   background-color: #4e0eff;
-//   color: #ffffff;
-//   border: none;
-//   border-radius: 0.5rem;
-//   cursor: pointer;
-//   font-size: 1rem;
-
-//   &:hover {
-//     background-color: #3d0ccf;
-//   }
-// `;
