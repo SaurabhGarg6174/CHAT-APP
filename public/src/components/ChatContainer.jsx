@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import Logout from "./Logout";
 import ChatInput from "./ChatInput";
 import axios from "axios";
 import { getAllMessagesRoute, sendMessageRoute } from "../utils/APIRoutes";
 
-export default function ChatContainer({ currentChat, currentUser }) {
+export default function ChatContainer({ currentChat, currentUser, socket }) {
   const [messages, setMessages] = useState([]);
+  const [arrivalMessage, setArrivalMessage] = useState(null);
+  const scrollRef = useRef();
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -20,7 +22,9 @@ export default function ChatContainer({ currentChat, currentUser }) {
         console.error("Error fetching messages:", error);
       }
     };
-    fetchMessages();
+    if (currentChat && currentUser) {
+      fetchMessages();
+    }
   }, [currentChat, currentUser]);
 
   const handleSendMsg = async (msg) => {
@@ -30,10 +34,39 @@ export default function ChatContainer({ currentChat, currentUser }) {
         to: currentChat._id,
         message: msg,
       });
+      socket.current.emit("send-msg", {
+        to: currentChat._id,
+        from: currentUser._id,
+        message: msg,
+      });
+
+      const msgs = [...messages];
+      msgs.push({ fromSelf: true, message: msg });
+      setMessages(msgs);
     } catch (error) {
-      console.log("Error sending message", error);
+      console.log("Error sending message:", error);
     }
   };
+
+  useEffect(() => {
+    if (socket.current) {
+      const handleMessageReceive = (msg) => {
+        setArrivalMessage({ fromSelf: false, message: msg });
+      };
+      socket.current.on("msg-receive", handleMessageReceive);
+      return () => {
+        socket.current.off("msg-receive", handleMessageReceive);
+      };
+    }
+  }, [socket.current]);
+
+  useEffect(() => {
+    arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <Container>
@@ -54,8 +87,10 @@ export default function ChatContainer({ currentChat, currentUser }) {
       <div className="chat-messages">
         {messages.map((message, index) => {
           return (
-            <div key={index}>
-              <div className={`message ${message.fromSelf ? "sent" : "recieved"}`}>
+            <div key={index} ref={scrollRef}>
+              <div
+                className={`message ${message.fromSelf ? "sent" : "received"}`}
+              >
                 <div className="content">
                   <p>{message.message}</p>
                 </div>
@@ -99,18 +134,25 @@ const Container = styled.div`
       }
     }
   }
-  .chat-messages{
-    z-index: 2000;
+  .chat-messages {
     padding: 1rem 2rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     overflow: auto;
-    .message{
+    &::-webkit-scrollbar {
+      width: 0.2rem;
+      &-thumb {
+        background-color: #ffffff39;
+        width: 0.1rem;
+        border-radius: 1rem;
+      }
+    }
+    .message {
       display: flex;
       align-items: center;
-      .content{
-        max-width:40%;
+      .content {
+        max-width: 40%;
         overflow-wrap: break-word;
         padding: 1rem;
         font-size: 1.1rem;
@@ -118,18 +160,17 @@ const Container = styled.div`
         color: #d1d1d1;
       }
     }
-    .sent{
+    .sent {
       justify-content: flex-end;
-      .content{
+      .content {
         background-color: #4f04ff21;
       }
     }
-    .recieved{
+    .received {
       justify-content: flex-start;
-      .content{
+      .content {
         background-color: #9900ff20;
       }
     }
   }
 `;
-

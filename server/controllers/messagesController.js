@@ -2,26 +2,26 @@ const messageModel = require("../models/messageModel");
 
 module.exports.addMessage = async (req, res, next) => {
     try {
-        const{from, to, message} = req.body;
+        const { from, to, message } = req.body;
         const data = await messageModel.create({
-            message:{text: message},
+            message: { text: message },
             users: [from, to],
             sender: from,
         });
-        if(data) return res.json({msg: "Message added successfully"});
-        return res.json({msg: "Failed to send msg to DB"})
+        if (data) return res.json({ msg: "Message added successfully" });
+        return res.json({ msg: "Failed to send msg to DB" })
     } catch (error) {
         next(error);
     }
 };
 module.exports.getAllMessage = async (req, res, next) => {
     try {
-        const {from, to} = req.body;
+        const { from, to } = req.body;
         const messages = await messageModel.find({
-            users:{
-                $all : [from, to],
+            users: {
+                $all: [from, to],
             },
-        }).sort({updatedAt: 1});
+        }).sort({ updatedAt: 1 });
         const projectedMessages = messages.map((msg) => {
             return {
                 fromSelf: msg.sender.toString() === from,

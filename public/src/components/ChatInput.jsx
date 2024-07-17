@@ -4,28 +4,10 @@ import EmojiPicker from "emoji-picker-react";
 import { IoMdSend } from "react-icons/io";
 import { BsEmojiSmileFill } from "react-icons/bs";
 
-export default function ChatInput({handleSendMsg}) {
+export default function ChatInput({ handleSendMsg }) {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [msg, setMsg] = useState("");
   const emojiPickerRef = useRef(null);
-
-  /*
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
-        setShowEmojiPicker(false);
-      }
-    }
-
-    // Bind the event listener
-    document.addEventListener("mousedown", handleClickOutside);
-
-    // Clean up the event listener on component unmount
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-  */
 
   const handleEmojiPicker = () => {
     setShowEmojiPicker(!showEmojiPicker);
@@ -36,13 +18,13 @@ export default function ChatInput({handleSendMsg}) {
     setMsg((message) => message + emojiObject.emoji);
   };
 
-  const sendChat = (e) =>{
+  const sendChat = (e) => {
     e.preventDefault();
     if (msg.length > 0) {
       handleSendMsg(msg);
-      setMsg('');
-    } 
-  }
+      setMsg("");
+    }
+  };
 
   return (
     <Container>
@@ -55,7 +37,9 @@ export default function ChatInput({handleSendMsg}) {
               <EmojiPicker
                 theme="dark"
                 className="emoji-picker-react"
-                onEmojiClick={(event, emojiObject) => handleEmojiClick(emojiObject)}
+                onEmojiClick={(event, emojiObject) =>
+                  handleEmojiClick(emojiObject)
+                }
                 height={350}
                 width={300}
                 autoFocusSearch={true}
@@ -84,9 +68,9 @@ export default function ChatInput({handleSendMsg}) {
 const Container = styled.div`
   display: grid;
   align-items: center;
-  grid-template-columns: 5% 95%;
+  grid-template-columns: 4% 96%;
   background-color: #080420;
-  padding: 0.2rem;
+  padding: 1rem;
   @media screen and (min-width: 720px) and (max-width: 1080px) {
     padding: 0 1rem;
     gap: 1rem;
@@ -95,11 +79,9 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     color: white;
-    gap: 1rem;
     .emoji {
       position: relative;
       svg {
-        margin-left: 0.5rem;
         font-size: 1.5rem;
         color: #ffff00c8;
         cursor: pointer;
@@ -107,8 +89,6 @@ const Container = styled.div`
       .emoji-picker-wrapper {
         position: absolute;
         bottom: calc(100% + 10px);
-        left: 0;
-        z-index: 1;
       }
       .emoji-picker-react {
         background-color: #080420;

@@ -37,7 +37,9 @@ export default function SetAvatar() {
       return;
     }
 
-    const user = JSON.parse(localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY));
+    const user = JSON.parse(
+      localStorage.getItem(process.env.REACT_APP_LOCALHOST_KEY)
+    );
     try {
       const { data } = await axios.post(`${setAvatarRoute}/${user._id}`, {
         image: avatars[selectedAvatar],
@@ -46,13 +48,19 @@ export default function SetAvatar() {
       if (data.isSet) {
         user.isAvatarImageSet = true;
         user.avatarImage = data.image;
-        localStorage.setItem(process.env.REACT_APP_LOCALHOST_KEY, JSON.stringify(user));
+        localStorage.setItem(
+          process.env.REACT_APP_LOCALHOST_KEY,
+          JSON.stringify(user)
+        );
         navigate("/");
       } else {
         toast.error("Error setting the avatar", toastOptions);
       }
     } catch (error) {
-      toast.error("Failed to set avatar. Please try again later.", toastOptions);
+      toast.error(
+        "Failed to set avatar. Please try again later.",
+        toastOptions
+      );
     }
   };
 
@@ -61,14 +69,19 @@ export default function SetAvatar() {
       try {
         const data = [];
         for (let i = 0; i < 4; i++) {
-          const image = await axios.get(`${api}/${Math.round(Math.random() * 1000)}`);
+          const image = await axios.get(
+            `${api}/${Math.round(Math.random() * 1000)}`
+          );
           const buffer = Buffer.from(image.data);
           data.push(buffer.toString("base64"));
         }
         setAvatars(data);
         setIsLoading(false);
       } catch (error) {
-        toast.error("Failed to fetch avatars. Please try again later.", toastOptions);
+        toast.error(
+          "Failed to fetch avatars. Please try again later.",
+          toastOptions
+        );
       }
     };
     fetchAvatars();
@@ -89,13 +102,12 @@ export default function SetAvatar() {
             {avatars.map((avatar, index) => (
               <div
                 key={index}
-                className={`avatar ${selectedAvatar === index ? "selected" : ""}`}
+                className={`avatar ${
+                  selectedAvatar === index ? "selected" : ""
+                }`}
                 onClick={() => setSelectedAvatar(index)}
               >
-                <img
-                  src={`data:image/svg+xml;base64,${avatar}`}
-                  alt="avatar"
-                />
+                <img src={`data:image/svg+xml;base64,${avatar}`} alt="avatar" />
               </div>
             ))}
           </div>

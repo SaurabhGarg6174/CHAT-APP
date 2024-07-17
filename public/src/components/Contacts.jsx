@@ -32,7 +32,7 @@ export default function Contacts({ contacts, currentUser, changeChat }) {
                     index === currentSelected ? "selected" : ""
                   }`}
                   key={index}
-                  onClick={() => changeCurrentChat(index, contact)} 
+                  onClick={() => changeCurrentChat(index, contact)}
                 >
                   <div className="avatar">
                     <img
@@ -88,13 +88,13 @@ const Container = styled.div`
     align-items: center;
     overflow: auto;
     gap: 0.8rem;
-    &::-webkit-scrollbar{
-        width: 0.2rem;
-        &-thumb{
-            background-color: #ffffff40;
-            width: 0.1rem;
-            border-radius: 1rem;
-        }
+    &::-webkit-scrollbar {
+      width: 0.2rem;
+      &-thumb {
+        background-color: #ffffff40;
+        width: 0.1rem;
+        border-radius: 1rem;
+      }
     }
     .contact {
       display: flex;

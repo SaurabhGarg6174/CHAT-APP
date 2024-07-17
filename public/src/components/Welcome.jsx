@@ -1,5 +1,5 @@
-import React from 'react';
-import styled from 'styled-components';
+import React from "react";
+import styled from "styled-components";
 import Robot from "../assets/robot.gif";
 
 export default function Welcome({ currentUser }) {
@@ -8,7 +8,9 @@ export default function Welcome({ currentUser }) {
       <img src={Robot} alt="robot" />
       {currentUser ? (
         <>
-          <h1>Welcome, <span>{currentUser.username}!</span></h1>
+          <h1>
+            Welcome, <span>{currentUser.username}!</span>
+          </h1>
           <h3>Select a chat to start messaging</h3>
         </>
       ) : (
